@@ -16,6 +16,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.flixmate.core.service.CouponService;
+import com.flixmate.core.service.NotificationService;
+import com.flixmate.core.service.AuditLogService;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +35,9 @@ public class BookingService {
     private final QRGeneratorService qrGeneratorService;
     private final PDFGeneratorService pdfGeneratorService;
     private final EmailSenderService emailSenderService;
+    private final CouponService couponService;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
     
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -102,12 +108,50 @@ public class BookingService {
             total = total.add(price);
         }
 
+        BigDecimal discount = BigDecimal.ZERO;
+        Coupon coupon = null;
+        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            coupon = couponService.validateCoupon(request.getCouponCode(), total);
+            if ("PERCENTAGE".equals(coupon.getDiscountType())) {
+                BigDecimal pctDiscount = total.multiply(coupon.getDiscountValue().divide(new BigDecimal("100")));
+                if (coupon.getMaxDiscountAmount() != null && pctDiscount.compareTo(coupon.getMaxDiscountAmount()) > 0) {
+                    pctDiscount = coupon.getMaxDiscountAmount();
+                }
+                discount = discount.add(pctDiscount);
+            } else if ("FLAT_AMOUNT".equals(coupon.getDiscountType())) {
+                discount = discount.add(coupon.getDiscountValue());
+            }
+        }
+
+        int pointsRedeemed = 0;
+        if (request.getRedeemPoints() > 0) {
+            if (user.getLoyaltyPoints() < request.getRedeemPoints()) {
+                throw new IllegalStateException("Insufficient loyalty points balance.");
+            }
+            BigDecimal pointsDiscount = new BigDecimal(request.getRedeemPoints()).divide(BigDecimal.TEN);
+            BigDecimal currentTotal = total.subtract(discount);
+            if (pointsDiscount.compareTo(currentTotal) > 0) {
+                pointsDiscount = currentTotal;
+                pointsRedeemed = currentTotal.multiply(BigDecimal.TEN).intValue();
+            } else {
+                pointsRedeemed = request.getRedeemPoints();
+            }
+            discount = discount.add(pointsDiscount);
+        }
+
+        BigDecimal finalPrice = total.subtract(discount);
+        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            finalPrice = BigDecimal.ZERO;
+        }
+
         // Create Booking (PENDING state)
         Booking booking = Booking.builder()
                 .user(user)
                 .showtime(showtime)
                 .status(BookingStatus.PENDING)
-                .totalPrice(total)
+                .totalPrice(finalPrice)
+                .coupon(coupon)
+                .pointsRedeemed(pointsRedeemed)
                 .build();
         
         booking = bookingRepository.save(booking);
@@ -130,7 +174,7 @@ public class BookingService {
         broadcastSeatStatus(request.getShowtimeId());
 
         // Create Stripe/Mock Payment Intent
-        String paymentIntentId = paymentService.createPaymentIntent(total, "USD");
+        String paymentIntentId = paymentService.createPaymentIntent(finalPrice, "USD");
         booking.setPaymentIntentId(paymentIntentId);
         bookingRepository.save(booking);
 
@@ -145,7 +189,7 @@ public class BookingService {
                 .theaterName(showtime.getScreen().getTheater().getName())
                 .screenName(showtime.getScreen().getName())
                 .startTime(showtime.getStartTime().toString())
-                .totalPrice(total)
+                .totalPrice(finalPrice)
                 .status(booking.getStatus().name())
                 .seatLabels(labels)
                 .paymentIntentId(paymentIntentId)
@@ -174,7 +218,21 @@ public class BookingService {
 
         // Update status to CONFIRMED
         booking.setStatus(BookingStatus.CONFIRMED);
+        
+        // Earning loyalty points: 1 point per $1 spent
+        int pointsEarned = booking.getTotalPrice().intValue();
+        booking.setPointsEarned(pointsEarned);
         bookingRepository.save(booking);
+
+        // Update user loyalty balance
+        User user = booking.getUser();
+        user.setLoyaltyPoints(user.getLoyaltyPoints() - booking.getPointsRedeemed() + pointsEarned);
+        userRepository.save(user);
+
+        // Increment coupon usage
+        if (booking.getCoupon() != null) {
+            couponService.incrementUsage(booking.getCoupon().getId());
+        }
 
         // Finalize Seat state to BOOKED
         List<BookedSeat> occupied = bookedSeatRepository.findOccupiedSeatsByShowtime(booking.getShowtime().getId());
@@ -199,6 +257,17 @@ public class BookingService {
 
         // Send Email notification
         emailSenderService.sendBookingConfirmationEmail(booking.getUser().getEmail(), booking, pdfTicket);
+
+        // Send In-app notification
+        notificationService.sendNotification(user.getId(), "Booking Confirmed!", 
+                "Your booking for " + booking.getShowtime().getMovie().getTitle() + " has been confirmed.", 
+                "BOOKING_CONFIRMATION");
+
+        // Write audit log
+        auditLogService.log("CONFIRM_BOOKING", user.getEmail(), 
+                "Confirmed booking " + booking.getId() + " for total price $" + booking.getTotalPrice() + 
+                ". Loyalty earned: " + pointsEarned + ", redeemed: " + booking.getPointsRedeemed(), 
+                "127.0.0.1");
 
         List<String> labels = holdsForThisBooking.stream()
                 .map(h -> h.getSeat().getRowName() + "-" + h.getSeat().getSeatNumber())

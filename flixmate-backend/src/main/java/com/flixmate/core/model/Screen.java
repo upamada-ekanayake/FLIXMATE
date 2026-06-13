@@ -24,4 +24,12 @@ public class Screen {
     private String name;
 
     private int totalSeats;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int rowsCount = 8;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int colsCount = 10;
 }

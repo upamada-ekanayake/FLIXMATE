@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Revenue Report - FlixMate</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0d0d0d; color: #ffffff; padding: 20px; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 30px; }
+        .metric-grid { display: flex; justify-content: space-around; margin: 30px 0; }
+        .metric-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 20px; text-align: center; width: 30%; }
+        .metric-value { font-size: 24px; font-weight: bold; color: #ffc107; margin-top: 10px; }
+        .footer { margin-top: 40px; font-size: 12px; color: #666666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 style="text-align: center;">Weekly Platform Revenue Report</h1>
+        <p>Dear System Manager, here is the summarized metrics report for FlixMate's SaaS booking operations over the past week:</p>
+        
+        <div class="metric-grid">
+            <div class="metric-card">
+                <h3>Total Revenue</h3>
+                <div class="metric-value">$<span th:text="${totalRevenue}">12,450.00</span></div>
+            </div>
+            <div class="metric-card">
+                <h3>Tickets Sold</h3>
+                <div class="metric-value" th:text="${ticketsSold}">854</div>
+            </div>
+            <div class="metric-card">
+                <h3>Coupons Redeemed</h3>
+                <div class="metric-value" th:text="${couponsRedeemed}">128</div>
+            </div>
+        </div>
+
+        <p>Dynamic Pricing has adjusted ticket costs by an average multiplier of <strong>1.12x</strong> based on real-time occupancies.</p>
+        <p>AI Revenue predictions estimate sales of <strong>$<span th:text="${predictedNextMonth}">48,900.00</span></strong> for the upcoming month.</p>
+        
+        <div class="footer">
+            <p>Sent by FlixMate Ticketing SaaS. © 2026 FlixMate. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

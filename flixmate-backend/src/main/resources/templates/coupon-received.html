@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Special Coupon Gift - FlixMate</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0d0d0d; color: #ffffff; padding: 20px; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 30px; text-align: center; }
+        .coupon-code { font-size: 28px; font-weight: bold; letter-spacing: 2px; color: #ffc107; background: rgba(255, 193, 7, 0.1); border: 2px dashed #ffc107; display: inline-block; padding: 10px 20px; border-radius: 6px; margin: 20px 0; }
+        .btn { display: inline-block; background: #e50914; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+        .footer { margin-top: 40px; font-size: 12px; color: #666666; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>You've Received a Promo Discount!</h1>
+        <p>Enjoy your next blockbuster experience with FlixMate. Use the coupon code below during your next checkout:</p>
+        <div class="coupon-code" th:text="${couponCode}">FLIXPROMO50</div>
+        <p>This coupon entitles you to <span th:text="${discountDetails}">50% off</span> your ticket purchases.</p>
+        <p><em>Hurry! This offer expires on <span th:text="${expiryDate}">2026-12-31</span>.</em></p>
+        <a href="http://localhost:3000" class="btn">Book Tickets Now</a>
+        <div class="footer">
+            <p>Sent by FlixMate Ticketing SaaS. © 2026 FlixMate. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

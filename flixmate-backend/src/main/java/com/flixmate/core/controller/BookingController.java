@@ -41,7 +41,9 @@ public class BookingController {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found."));
 
-        if (!booking.getUser().getId().equals(user.getId()) && !user.getRole().name().equals("ROLE_ADMIN")) {
+        if (!booking.getUser().getId().equals(user.getId()) && 
+            !user.getRole().name().equals("ROLE_SUPER_ADMIN") && 
+            !user.getRole().name().equals("ROLE_THEATER_MANAGER")) {
             throw new IllegalStateException("You are not authorized to confirm this booking.");
         }
 
@@ -60,7 +62,9 @@ public class BookingController {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found."));
 
-        if (!booking.getUser().getId().equals(user.getId()) && !user.getRole().name().equals("ROLE_ADMIN")) {
+        if (!booking.getUser().getId().equals(user.getId()) && 
+            !user.getRole().name().equals("ROLE_SUPER_ADMIN") && 
+            !user.getRole().name().equals("ROLE_THEATER_MANAGER")) {
             throw new IllegalStateException("You are not authorized to access this ticket PDF.");
         }
 

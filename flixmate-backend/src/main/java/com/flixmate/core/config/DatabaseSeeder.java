@@ -47,7 +47,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .password(passwordEncoder.encode("admin123"))
                 .firstName("FlixMate")
                 .lastName("Admin")
-                .role(Role.ROLE_ADMIN)
+                .role(Role.ROLE_SUPER_ADMIN)
                 .build();
         userRepository.save(admin);
 

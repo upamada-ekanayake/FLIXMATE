@@ -37,7 +37,7 @@ public class AuthService {
 
         // Check if there are no users, make the first registered user an ADMIN for testing convenience
         if (userRepository.count() == 0) {
-            user.setRole(Role.ROLE_ADMIN);
+            user.setRole(Role.ROLE_SUPER_ADMIN);
         }
 
         userRepository.save(user);

@@ -69,7 +69,7 @@ public class BookingServiceTest {
     @Test
     void testHoldSeatsThrowsExceptionWhenSeatAlreadyOccupied() {
         // Arrange
-        BookingRequest request = new BookingRequest(showtimeId, List.of(seatId));
+        BookingRequest request = new BookingRequest(showtimeId, List.of(seatId), null, 0);
         BookedSeat occupiedSeat = BookedSeat.builder()
                 .seat(seat)
                 .status(BookedSeatStatus.BOOKED)

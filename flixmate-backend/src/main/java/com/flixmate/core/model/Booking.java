@@ -37,6 +37,16 @@ public class Booking {
 
     private String paymentIntentId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
+
+    @Builder.Default
+    private int pointsEarned = 0;
+
+    @Builder.Default
+    private int pointsRedeemed = 0;
+
     @CreationTimestamp
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;

@@ -18,8 +18,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -51,10 +54,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/pricing/**").permitAll()
                 
                 // Write operations for admin entities
-                .requestMatchers("/api/movies/**").hasRole("ADMIN")
-                .requestMatchers("/api/showtimes/**").hasRole("ADMIN")
-                .requestMatchers("/api/theaters/**").hasRole("ADMIN")
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/movies/**").hasAnyRole("SUPER_ADMIN", "THEATER_MANAGER")
+                .requestMatchers("/api/showtimes/**").hasAnyRole("SUPER_ADMIN", "THEATER_MANAGER")
+                .requestMatchers("/api/theaters/**").hasAnyRole("SUPER_ADMIN", "THEATER_MANAGER")
+                .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN", "THEATER_MANAGER")
+                .requestMatchers("/api/coupons/**").hasAnyRole("SUPER_ADMIN", "MARKETING_AGENT")
                 
                 // User-specific endpoints
                 .requestMatchers("/api/bookings/**").authenticated()

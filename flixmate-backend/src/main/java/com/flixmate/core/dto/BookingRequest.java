@@ -13,4 +13,6 @@ import java.util.UUID;
 public class BookingRequest {
     private UUID showtimeId;
     private List<UUID> seatIds;
+    private String couponCode;
+    private int redeemPoints = 0;
 }
