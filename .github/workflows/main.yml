@@ -1,0 +1,74 @@
+name: FlixMate CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run Maven Tests
+      run: |
+        cd flixmate-backend
+        mvn clean test -Dspring.profiles.active=test
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: flixmate-frontend/package-lock.json
+
+    - name: Install Frontend Dependencies
+      run: |
+        cd flixmate-frontend
+        npm ci --legacy-peer-deps
+
+    - name: Build Next.js Application
+      run: |
+        cd flixmate-frontend
+        npm run build
+      env:
+        NEXT_PUBLIC_API_URL: http://localhost:8080/api
+
+  docker-verify:
+    needs: [backend-test, frontend-build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Verify Backend Docker Build
+      uses: docker/build-push-action@v5
+      with:
+        context: ./flixmate-backend
+        file: ./flixmate-backend/Dockerfile
+        push: false
+        tags: flixmate-backend:latest
+
+    - name: Verify Frontend Docker Build
+      uses: docker/build-push-action@v5
+      with:
+        context: ./flixmate-frontend
+        file: ./flixmate-frontend/Dockerfile
+        push: false
+        tags: flixmate-frontend:latest

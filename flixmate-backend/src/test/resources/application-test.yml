@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+flixmate:
+  security:
+    jwt:
+      secret: 407F1D2F407F1D2F407F1D2F407F1D2F407F1D2F407F1D2F407F1D2F407F1D2F
+      expiration-ms: 3600000
+  tmdb:
+    api-key: ${TMDB_API_KEY:2f4038e83265214a0dcd6ec2eb3276f5}
+    base-url: https://api.themoviedb.org/3
+  gemini:
+    api-key: ${GEMINI_API_KEY:mock-key}
+    base-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:mock-key}

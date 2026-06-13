@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --primary: 348 83% 47%; /* Netflix Red: #e50914 */
+  --primary-foreground: 0 0% 100%;
+  --card: 240 10% 5.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 348 83% 47%;
+  --radius: 0.75rem;
+  --glass-bg: rgba(15, 15, 20, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+.light-theme {
+  --background: 0 0% 98%;
+  --foreground: 240 10% 3.9%;
+  --primary: 348 83% 47%;
+  --primary-foreground: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 348 83% 47%;
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(0, 0, 0, 0.06);
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(229, 9, 20, 0.4);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 9, 20, 0.8);
+}
+
+/* Premium Glassmorphism */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-navbar {
+  background: rgba(9, 9, 11, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.light-theme .glass-navbar {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Movie Card Glow Effect */
+.movie-card-glow {
+  transition: all 0.3s ease;
+}
+.movie-card-glow:hover {
+  box-shadow: 0 0 20px 2px rgba(229, 9, 20, 0.45);
+  transform: translateY(-4px);
+}
+
+/* Interactive Cinema Screen Glow */
+.cinema-screen-glow {
+  box-shadow: 0 -10px 40px 10px rgba(255, 255, 255, 0.08);
+}
+.light-theme .cinema-screen-glow {
+  box-shadow: 0 -10px 40px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Pulse Glow Keyframe */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.8);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
